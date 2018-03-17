@@ -11,5 +11,5 @@ This addon allows to animate property on multiple objects at once directly from 
 Like all the other Blender addons.
 
 # Current limitations
-Doesn't work with all properties (may be fixed later).
+Doesn't work with all properties (may be fixed later).<br>
 Need version 2.79  or higher (can not be fixed).
