@@ -7,7 +7,7 @@ This addon allows to animate property on multiple objects at once directly from 
 </div>
 
 
-# Intallation
+# Installation
 Like all the other Blender addons.
 
 # Current limitations
