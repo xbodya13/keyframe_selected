@@ -1,8 +1,8 @@
 bl_info = {
 "name": "Keyframe selected",
 "category": "Animation",
-"version": (1, 0),
-"blender": (2, 7, 9),
+"version": (1, 1),
+"blender": (2, 80, 0),
 "location": "Right click menu",
 "description": "Insert or delete keyframes for current UI-active property on selected objects or bones",
 "wiki_url": "https://github.com/xbodya13/keyframe_selected",
@@ -137,17 +137,23 @@ def draw_key(self, context):
         layout.operator(ClearKeyframeSelected.bl_idname, icon='KEY_DEHLT')
 
 
+register_classes=[InsertKeyframeSelected,DeleteKeyframeSelected,ClearKeyframeSelected,WM_MT_button_context]
+
 def register():
-    bpy.utils.register_module(__name__)
+
+    for register_class in register_classes:
+        bpy.utils.register_class(register_class)
+
     bpy.types.WM_MT_button_context.append(draw_key)
 
 
 
 def unregister():
-    bpy.utils.unregister_module(__name__)
+
+    for register_class in reversed(register_classes):
+        bpy.utils.unregister_class(register_class)
+
     bpy.types.WM_MT_button_context.remove(draw_key)
 
 
 
-if __name__ == "__main__":
-    register()
