@@ -138,22 +138,21 @@ def draw_key(self, context):
 
 
 register_classes=[InsertKeyframeSelected,DeleteKeyframeSelected,ClearKeyframeSelected,WM_MT_button_context]
-
 def register():
 
     for register_class in register_classes:
         bpy.utils.register_class(register_class)
-
     bpy.types.WM_MT_button_context.append(draw_key)
-
 
 
 def unregister():
 
+    bpy.types.WM_MT_button_context.remove(draw_key)
+
     for register_class in reversed(register_classes):
         bpy.utils.unregister_class(register_class)
 
-    bpy.types.WM_MT_button_context.remove(draw_key)
+
 
 
 
