@@ -1,5 +1,7 @@
 # Keyframe selected 
 This addon allows to animate property on multiple objects at once directly from right click menu without keying sets.
+
+Works up to blender 4.0
 <br>
 <br>
 <div align="center">
