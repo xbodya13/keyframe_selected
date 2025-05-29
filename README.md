@@ -1,17 +1,9 @@
 # Keyframe selected 
-This addon allows to animate property on multiple objects at once directly from right click menu without keying sets.
-
-Works up to blender 4.0
-<br>
-<br>
-<div align="center">
-<img width=500  src= "https://media.giphy.com/media/xjlungFRak0CiG6Bja/giphy.gif"><br><br>
-</div>
 
 
-# Installation
-Like all the other Blender addons.
+Hold ``Alt`` to insert/delete keyframe on all selected objects/bones, or use right click menu
 
-# Current limitations
-Doesn't work with all properties (may be fixed later).<br>
-Need version 2.79  or higher (can not be fixed).
+
+[keyframe.webm](https://github.com/user-attachments/assets/6536c15b-d412-41aa-b1e6-f3eb543eac9c)
+
+Color feedback can be disabled in addon settings
