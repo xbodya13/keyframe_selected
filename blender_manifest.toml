@@ -1,0 +1,22 @@
+schema_version = "1.0.0"
+
+id = "keyframe_selected"
+version = "1.3.0"
+name = "Keyframe selected"
+tagline = "Insert or delete keyframes for current UI-active property on selected objects or bones"
+maintainer = "xbodya13 <xbodya13@gmail.com>"
+type = "add-on"
+
+website = "https://github.com/xbodya13/keyframe_selected"
+
+tags = ["Animation"]
+
+blender_version_min = "4.4.0"
+
+license = [
+  "SPDX:GPL-3.0-or-later",
+]
+
+
+
+
