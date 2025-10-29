@@ -4,10 +4,10 @@ import math
 bl_info = {
 "name": "Keyframe selected",
 "category": "Animation",
-"version": (1, 3),
+"version": (1, 3,2),
 "blender": (4, 4, 0),
 "location": "Right click menu",
-"description": "Insert or delete keyframes for current UI-active property on selected objects or bones",
+"description": "Insert or delete keyframes on selected items",
 "wiki_url": "https://github.com/xbodya13/keyframe_selected",
 "tracker_url": "https://github.com/xbodya13/keyframe_selected/issues"
 }
@@ -21,7 +21,7 @@ from mathutils import Vector
 
 
 class gv:
-    keyconfig=None
+    keymap_data=None
 
     last_animation_data=None
 
@@ -380,35 +380,6 @@ class ClearKeyframeSelected(Base,bpy.types.Operator):
         self.perform('CLEAR', context)
         return {'FINISHED'}
 
-class Test(bpy.types.Operator):
-    """Test"""
-    bl_idname="key_selected.test"
-    bl_label="Test"
-    bl_options={'REGISTER','UNDO'}
-
-
-    @classmethod
-    def poll(self,context):
-        return True
-
-    def invoke(self, context, event):
-        context.window_manager.modal_handler_add(self)
-        return {'RUNNING_MODAL'}
-
-    def modal(self, context, event):
-
-        # print(event.alt)
-
-
-        return {'PASS_THROUGH'}
-
-    def execute(self,context):
-        # print("Test")
-
-
-        return {'FINISHED'}
-
-
 
 
 def get_animation_data():
@@ -424,16 +395,17 @@ def get_animation_data():
     if "4.4":
         def fcurve_iterator(holder):
             # print("FCURVE")
-            if holder.animation_data is not None:
-                if holder.animation_data.action is not None:
-                    for layer in holder.animation_data.action.layers:
-                        for strip in layer.strips:
-                            for channelbag in strip.channelbags:
-                                for fcurve in channelbag.fcurves:
-                                    for keyframe_point in fcurve.keyframe_points:
-                                        if keyframe_point.co.x==bpy.context.scene.frame_current:
-                                            yield fcurve.data_path,fcurve.array_index
-                                            break
+            if hasattr(holder,"animation_data"):
+                if holder.animation_data is not None:
+                    if holder.animation_data.action is not None:
+                        for layer in holder.animation_data.action.layers:
+                            for strip in layer.strips:
+                                for channelbag in strip.channelbags:
+                                    for fcurve in channelbag.fcurves:
+                                        for keyframe_point in fcurve.keyframe_points:
+                                            if keyframe_point.co.x==bpy.context.scene.frame_current:
+                                                yield fcurve.data_path,fcurve.array_index
+                                                break
 
 
 
@@ -552,7 +524,7 @@ def color_updater():
 def handler(scene):
     # print("HANDLER")
 
-    if bpy.context.preferences.addons[__name__].preferences.use_animation:
+    if bpy.context.preferences.addons[__package__].preferences.use_animation:
 
         if gv.is_color_update:
             animation_data=gv.last_animation_data
@@ -691,7 +663,7 @@ class StartTracking(bpy.types.Operator):
 
     @classmethod
     def poll(self,context):
-        return bpy.context.preferences.addons[__name__].preferences.use_animation
+        return bpy.context.preferences.addons[__package__].preferences.use_animation
 
     def invoke(self, context, event):
         # print("START TRACKING")
@@ -734,7 +706,7 @@ class WM_MT_button_context(bpy.types.Menu):
 
 class Preferences(bpy.types.AddonPreferences):
 
-    bl_idname = __name__
+    bl_idname = __package__
 
 
     use_animation: bpy.props.BoolProperty(name="Color animations",default=True)
@@ -747,7 +719,7 @@ class Preferences(bpy.types.AddonPreferences):
 
 def draw_key(self, context):
     if Base.draw_poll(context):
-        if bpy.context.preferences.addons[__name__].preferences.use_menu:
+        if bpy.context.preferences.addons[__package__].preferences.use_menu:
             layout = self.layout
             layout.separator()
             layout.operator(InsertKeyframeSelected.bl_idname,icon='KEY_HLT')
@@ -771,49 +743,50 @@ def setattr_nested(source,path,value):
 def make_keys():
     # print("MAKE KEYS")
 
-    gv.blanks=(
+    blanks=(
             ('Window',StartTracking.bl_idname,'LEFT_ALT','PRESS'),
             # ('Window',StopTracking.bl_idname, 'LEFT_ALT', 'RELEASE')
     )
 
-    if bpy.context.window_manager.keyconfigs.active is not None:
-        gv.keyconfig=bpy.context.window_manager.keyconfigs.active
 
-    else:
-        gv.keyconfig=bpy.context.window_manager.keyconfigs.default
-        # print("AAA")
 
-    for keymap,*blank in gv.blanks:
-        if keymap not in gv.keyconfig.keymaps:keymap_items=gv.keyconfig.keymaps.new(keymap).keymap_items
-        else:keymap_items=gv.keyconfig.keymaps[keymap].keymap_items
+    keyconfig=bpy.context.window_manager.keyconfigs.addon
 
-        keymap_items.new(*blank, head=False)
+    keymap_data=[]
+    for keymap_name,*blank in blanks:
+        if keymap_name not in keyconfig.keymaps:
+            keymap_items=keyconfig.keymaps.new(keymap_name).keymap_items
+        else:keymap_items=keyconfig.keymaps[keymap_name].keymap_items
 
+        keymap_item=keymap_items.new(*blank, head=False)
+
+        keymap_data.append((keymap_items,keymap_item))
+
+    gv.keymap_data=keymap_data
 
 
 
 
 def clear_keys():
     # print("CLEAR KEYS")
-    to_remove=[]
-    if gv.keyconfig is not None:
-        for keymap,target_idname,target_type,target_value in gv.blanks:
-            if keymap in gv.keyconfig.keymaps:
-                keymap_items = gv.keyconfig.keymaps[keymap].keymap_items
 
-                for item in keymap_items:
-                    if (target_idname,target_type,target_value)==(item.idname,item.type,item.value):
-                        to_remove.append((keymap_items,item))
+    if gv.keymap_data is not None:
+        for keymap_items,keymap_item in gv.keymap_data:
+            keymap_items.remove(keymap_item)
 
-        for keymap_items,item in to_remove:
-            keymap_items.remove(item)
+    gv.keymap_data=None
+
+
+
+
+
 @persistent
 def save_pre_handler():
     for record in gv.color_data.values():
         record.reset()
 
 
-register_classes=[InsertKeyframeSelected,DeleteKeyframeSelected,ClearKeyframeSelected,WM_MT_button_context,StartTracking,Preferences,Test]
+register_classes=[InsertKeyframeSelected,DeleteKeyframeSelected,ClearKeyframeSelected,WM_MT_button_context,StartTracking,Preferences]
 def register():
     # bpy.app.handlers.depsgraph_update_pre.append(scene_before_handler)
 
