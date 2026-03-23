@@ -4,7 +4,7 @@ import math
 bl_info = {
 "name": "Keyframe selected",
 "category": "Animation",
-"version": (1, 3,2),
+"version": (1, 3,3),
 "blender": (4, 4, 0),
 "location": "Right click menu",
 "description": "Insert or delete keyframes on selected items",
@@ -667,6 +667,7 @@ class StartTracking(bpy.types.Operator):
 
     def invoke(self, context, event):
         # print("START TRACKING")
+        # print(event.type, event.value, event.alt)
         context.window_manager.modal_handler_add(self)
 
         gv.track_objects=list(bpy.context.selected_objects)
@@ -679,13 +680,17 @@ class StartTracking(bpy.types.Operator):
         return {'RUNNING_MODAL'}
 
     def modal(self, context, event):
+        # print(event.type,event.value,event.alt)
 
-        if not event.alt:
-            # print("STOP TRACKING")
-            bpy.app.handlers.depsgraph_update_pre.remove(handler)
-            return {'FINISHED'}
+        # if event.type=='LEFT_ALT' and not event.alt:
+        if  not event.alt:
+            if not (bpy.context.preferences.inputs.use_mouse_emulate_3_button and bpy.context.preferences.inputs.mouse_emulate_3_button_modifier=='ALT' and event.type=='MIDDLEMOUSE' ):
+                # print("STOP TRACKING")
+                bpy.app.handlers.depsgraph_update_pre.remove(handler)
+                return {'FINISHED'}
 
         return {'PASS_THROUGH'}
+        # return {'INTERFACE'}
 
 
 
@@ -745,6 +750,7 @@ def make_keys():
 
     blanks=(
             ('Window',StartTracking.bl_idname,'LEFT_ALT','PRESS'),
+            # ('Window', StartTracking.bl_idname, 'LEFT_CTRL', 'PRESS'),
             # ('Window',StopTracking.bl_idname, 'LEFT_ALT', 'RELEASE')
     )
 

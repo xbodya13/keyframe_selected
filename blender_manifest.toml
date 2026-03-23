@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
 id = "keyframe_selected"
-version = "1.3.2"
+version = "1.3.3"
 name = "Keyframe selected"
 tagline = "Insert or delete keyframes on selected items"
 maintainer = "xbodya13 <xbodya13@gmail.com>"
